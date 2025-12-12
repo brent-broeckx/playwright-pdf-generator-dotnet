@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    ports:
+      - "7024:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - internet
+      - no-internet
+    restart: unless-stopped
+    depends_on:
+      - consoleapp
+
+  consoleapp:
+    image: playwright-pdf-api-chiseled:latest
+    container_name: playwright-api-chiseled
+    expose:
+      - "8080"
+    networks:
+      - no-internet
+    restart: unless-stopped
+
+networks:
+  no-internet:
+    driver: bridge
+    internal: true  # Blocks all external internet access
+  
+  internet:
+    driver: bridge  # Normal network with internet access
